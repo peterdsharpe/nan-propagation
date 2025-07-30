@@ -54,6 +54,21 @@ This kind of branching code execution is perhaps the most common cause of such f
 
 For reasons related to Jacobian compression (described later via demonstration in Section \ref{sec:nan-jacobian-compression}), the harm caused by a false-negative and a false-positive are very unequal -- false negatives are far worse. The ultimate effect of a false-positive is that subsequent gradient calculations will be slightly slower, though still numerically correct. On the other hand, the ultimate effect of a false-negative is that gradient calculations can be incorrect, due to erroneous Jacobian compression. Worse yet, these incorrect results can occur silently. In the context of design optimization, an incorrect gradient might only be detected much later in the development effort, when an optimizer consistently cannot converge (as the KKT conditions cannot be satisfied). By this point in the code development process, the combined optimization model is usually much more complex, and finding and eliminating an incorrect-gradient error becomes enormously tedious. Because of this, a new method for black-box sparsity estimation that eliminates false-negative failure modes offers significant value to the end-user, even if it comes at the cost of false-positive failure modes. In other words, the focus of black-box sparsity estimation within this context should be to build up a \emph{conservative} estimate of the sparsity pattern that trades away specificity in favor of sensitivity.
 
+Recently, operator-overloading-based approaches to sparsity detection have been developed that do not suffer from this local-to-global problem \cite{hillSparserBetterFaster2025,rackauckasGeneralizingAutomaticDifferentiation2021}. However, the increased robustness of such methods comes at the cost of generality: an overloading-based sparsity detection framework can only be used on code that uses a supported math library and programming language (in both of the cited examples, Julia). Therefore, these methods cannot currently be applied to general black-box functions, which may be in any language.
+
+\subsection{Contributions and Paper Organization}
+
+This paper's primary contributions are:
+
+\begin{enumerate}[noitemsep]
+    \item A novel sparsity detection technique that eliminates the coincidental zero gradient failure mode of existing methods
+    \item Theoretical analysis and practical demonstration of the method's advantages and limitations
+    \item Advanced algorithms including NaN payload encoding for improved computational complexity
+    \item Specialized strategies for engineering analysis functions with branching execution paths
+    \item Comprehensive evaluation on a representative aerospace engineering application
+\end{enumerate}
+
+The remainder of this paper is organized as follows: Section \ref{sec:nan-demo} introduces the core NaN-propagation technique with a detailed demonstration. Section \ref{sec:speed} analyzes computational performance considerations. Sections \ref{sec:limitations} and \ref{sec:mitigation} examine potential limitations and mitigation strategies. Section \ref{sec:nan-comparison} provides quantitative comparison with existing methods. Section \ref{sec:nan-advanced} presents advanced algorithmic improvements. Section \ref{sec:conclusions} summarizes key findings and discusses future directions.
 
 \section{NaN-Propagation: Method and Demonstration}
 \label{sec:nan-demo}
