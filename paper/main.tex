@@ -14,10 +14,10 @@
 \maketitle
 
 \begin{abstract}
-
+Sparsity detection in black-box functions enables significant computational speedups in gradient-based optimization through Jacobian compression, but existing finite-difference methods suffer from false negatives due to coincidental zero gradients. These false negatives can silently corrupt gradient calculations during Jacobian compression, leading to difficult-to-diagnose errors. We introduce NaN-propagation, which exploits the universal contamination property of IEEE 754 Not-a-Number values to trace input-output dependencies. By systematically contaminating inputs with NaN and observing which outputs become NaN, the method reconstructs conservative sparsity patterns that eliminate false negatives. We demonstrate the approach on an aerospace wing weight model, achieving a 1.52× speedup while detecting dozens of dependencies missed by conventional methods. The technique leverages IEEE 754 compliance to work across programming languages and math libraries without any modification to existing black-box codes. Advanced strategies including NaN payload encoding enable fundamental improvements in sparsity computation speed (i.e., faster-than-linear time complexity with respect to the number of inputs) relative to existing techniques for black-box functions. Practical algorithms are also proposed that mitigate challenges from branching code execution common in engineering applications.
 \end{abstract}
 
-\vspace{-0.5cm}
+% \vspace{0.5cm}
 \begin{center}
 \small\textit{Adapted for independent reading from a chapter of the author's Ph.D. thesis \cite{sharpeAcceleratingPracticalEngineering2024}.}
 \end{center}
@@ -73,7 +73,7 @@ The remainder of this paper is organized as follows: Section \ref{sec:nan-demo} 
 \section{NaN-Propagation: Method and Demonstration}
 \label{sec:nan-demo}
 
-This manuscript introduces a novel technique that we call \emph{NaN propagation} to trace these input-output dependencies through black-box functions. The name refers to ``not-a-number'' (NaN), which is a special value in floating-point arithmetic that is often used to represent undefined, missing, or otherwise unrepresentable values. The proposed technique exploits the fact that Not-a-Number (NaN) values are universally propagated through floating-point numerical computations; colloquially, they tend to ``contaminate'' any calculation that is given a NaN input. For example, a dyadic\footnote{referring to a function that accepts two input parameters} operation with a just one NaN operand will return NaN. This behavior is explicitly part of math library APIs that follow the IEEE 754 standard \cite{ieee754}, first established in 1985. Because nearly all floating-point math libraries created since the advent of IEEE 754 follow it, this presents a fascinating way to potentially trace sparsity in a way that is essentially independent of math library or programming language. By systematically and deliberately contaminating inputs to a black-box function with NaN values and observing which outputs become NaN, a provably-conservative estimate of the sparsity pattern can be reconstructed.
+This manuscript introduces a novel technique that we call \emph{NaN-propagation} to trace these input-output dependencies through black-box functions. The name refers to ``not-a-number'' (NaN), which is a special value in floating-point arithmetic that is often used to represent undefined, missing, or otherwise unrepresentable values. The proposed technique exploits the fact that Not-a-Number (NaN) values are universally propagated through floating-point numerical computations; colloquially, they tend to ``contaminate'' any calculation that is given a NaN input. For example, a dyadic\footnote{referring to a function that accepts two input parameters} operation with a just one NaN operand will return NaN. This behavior is explicitly part of math library APIs that follow the IEEE 754 standard \cite{ieee754}, first established in 1985. Because nearly all floating-point math libraries created since the advent of IEEE 754 follow it, this presents a fascinating way to potentially trace sparsity in a way that is essentially independent of math library or programming language. By systematically and deliberately contaminating inputs to a black-box function with NaN values and observing which outputs become NaN, a provably-conservative estimate of the sparsity pattern can be reconstructed.
 
 As a high-level comparison against the existing technique described in this section, this proposed new technique:
 
@@ -128,7 +128,7 @@ This simple procedure yields the complete bipartite graph of which inputs and ou
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{figures/nan-propagation/image2-crop.png}
-    \caption{Sparsity pattern of the TASOPT wing weight model, estimated using NaN propagation. In this visualization, gray squares indicate nonzero entries in the Jacobian, while white squares indicate zero entries.}
+    \caption{Sparsity pattern of the TASOPT wing weight model, estimated using NaN-propagation. In this visualization, gray squares indicate nonzero entries in the Jacobian, while white squares indicate zero entries.}
     \label{fig:nan-jacobian}
 \end{figure}
 
@@ -324,6 +324,20 @@ Thus, chunking may offer significant speedups in engineering practice by exploit
 
 All source code used to generate example results in this publication is publicly available at \url{https://github.com/peterdsharpe/nan-propagation}.
 
+\section{Conclusions}
+\label{sec:conclusions}
+
+NaN-propagation exploits the universal contamination property of IEEE 754 NaN values to detect sparsity in black-box functions. By systematically contaminating inputs with NaN and observing which outputs become NaN, the method eliminates the coincidental zero gradient failure mode that affects existing finite-difference approaches.
+
+The technique offers several key advantages. Most importantly, it provides conservative sparsity estimates that eliminate false negatives -- a critical improvement, since incorrect sparsity patterns can silently corrupt gradient calculations during Jacobian compression. On the TASOPT wing weight model, NaN-propagation detected dozens of dependencies missed by conventional methods and achieved a 1.52× gradient computation speedup.
+
+The method has limitations. It can introduce false positives in functions with mathematical self-cancellation (e.g., $f(x) = x - x$), and some black-box functions may not be compatible due to internal NaN handling. Fortunately, false positives have relatively low impact, resulting in a speed penalty but without compromising numerical correctness of gradients. Like existing methods, NaN-propagation struggles with branching code execution, though the proposed greedy algorithm provides practical improvements for engineering applications.
+
+Advanced strategies can further improve performance. NaN payload encoding allows multiple columns to be traced simultaneously, offering theoretical $\mathcal{O}(\log N)$ complexity for sparse problems. Chunking techniques exploit the locality common in engineering code to reduce function evaluations with minimal accuracy loss.
+
+The universal nature of IEEE 754 NaN behavior makes this approach broadly applicable across programming languages and computational environments. This is particularly valuable for engineering optimization, where legacy and proprietary analysis codes are common and gradient-based methods are essential for high-dimensional problems.
+
+Future work should focus on developing optimal column selection algorithms for NaN payload encoding, creating hybrid approaches that combine multiple sparsity detection methods, and implementing the technique in popular optimization and machine learning frameworks to enable widespread adoption.
 
 \bibliographystyle{plain}
 \bibliography{C:/Users/psharpe/library, references}
