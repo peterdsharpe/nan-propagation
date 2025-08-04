@@ -49,7 +49,7 @@ An earlier version of this work is also available in this thesis: [Peter Sharpe,
   title={Accelerating Practical Engineering Design Optimization with Computational Graph Transformations},
   author={Sharpe, Peter},
   year={2024},
-  school={Massachusetts Institute of Technology}
+  school={Massachusetts Institute of Technology},
   url={https://dspace.mit.edu/handle/1721.1/157809}
 }
 ```
