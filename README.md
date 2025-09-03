@@ -1,6 +1,9 @@
-# NaN Propagation
+# NaN-Propagation: A Novel Method for Sparsity Detection in Black-Box Computational Functions
 
 By Peter Sharpe
+
+> [!NOTE]
+> In lieu of a better name, I propose we call this the "[Tandoor](https://en.wikipedia.org/wiki/Tandoor) Technique" for sparsity detection, since it propagates [naans](https://en.wikipedia.org/wiki/Naan).
 
 -----
 
