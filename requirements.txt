@@ -2,6 +2,6 @@
 juliacall
 # Must have Julia 1.7+ installed and on PATH as `julia`
 numpy
-networx
+networkx
 matplotlib
 aerosandbox
