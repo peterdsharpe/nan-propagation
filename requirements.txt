@@ -1,3 +1,7 @@
 # Python 3.7+
 juliacall
 # Must have Julia 1.7+ installed and on PATH as `julia`
+numpy
+networx
+matplotlib
+aerosandbox
